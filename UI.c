@@ -19,9 +19,10 @@ void UI_waitStart(UI* this)
 {
 	// タッチセンサが押されるまで、待ち続ける
 
-	BOOL flag_touch = false;
+	char flag_touch = 0;
 	int run_time = 0;
 	int count = 0;
+	U16 white = 0;	
 	while(1)
 	{
 		// 尻尾を立てて完全停止状態にする
@@ -33,11 +34,15 @@ void UI_waitStart(UI* this)
 		else	count = 0;
 		if(count == 5){
 			//一度目のボタン押下でキャリブレーション
-			if(!flag_touch){
-				this->lineTracer->TARGET = (F32)Maimai_calc(this->maimai);
-				flag_touch = true;
+			if(flag_touch == 0){
+				white = Maimai_calc(this->maimai);
+				flag_touch = 1;
 			}
 			//2度目のボタン押下でスタート
+			else if(flag_touch == 1){
+				this->lineTracer->TARGET = (F32)((white + Maimai_calc(this->maimai)) / 2);
+				flag_touch = 2;
+			}
 			else{
 				Motor_tailControl(this->tailMotor, TAIL_ANGLE_DRIVE);
 				break;
@@ -56,8 +61,13 @@ void UI_waitStart(UI* this)
 
 		display_clear(0);
 		display_goto_xy(0,1);
-		display_string("TARGET=");
-		display_int(this->lineTracer->TARGET,1);
+		if(flag_touch == 1){
+			display_string("white=");
+			display_int(white,1);
+		}else if(flag_touch == 2){
+			display_string("black=");
+			display_int(this->lineTracer->TARGET*2 - white,1);
+		}
 		display_update();
 
 		systick_wait_ms(4);
