@@ -28,8 +28,8 @@ void LineTracer_init(LineTracer* this)
 	this->diff[1] = 0;
 	this->integral = 0;
 
-	this->KP = 0.55;
-	this->KI = 0.06;
+	this->KP = 0.66;
+	this->KI = 0.07;
 	this->KD = 0.07;
 	this->TARGET = 630;
 
@@ -68,6 +68,9 @@ void LineTracer_changePID(LineTracer* this, F32 p, F32 i, F32 d, F32 target)
 	this->TARGET = target; //デフォルト：580.0
 }
 
+F32 LineTracer_getTarget(LineTracer* this){
+	return this->TARGET;
+} 
 
 static DIRECTION LineTracer_calcDirection(LineTracer* this, COLOR color)
 {

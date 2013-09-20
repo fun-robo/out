@@ -35,6 +35,7 @@ typedef struct LineTracer
 void LineTracer_init(LineTracer* this);
 void LineTracer_trace(LineTracer* this, int forword, int run_time);
 void LineTracer_changePID(LineTracer* this, F32 p, F32 i, F32 d, F32 target);
+F32 LineTracer_getTarget(LineTracer* this);
 
 #endif /*!defined(EA_6FB55B53_C0F0_4250_B6B0_BC28A0A336D7__INCLUDED_)*/
 

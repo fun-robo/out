@@ -49,7 +49,10 @@ TASK(TaskMain)
 {
 	//変数宣言部
 	int run_time = 0;
-
+	int gyro = 0;
+	long motor_r = 0;
+	int zone = 0;
+	int forward = 100;
 	//デバイスの初期化
 	ecrobot_device_initialize();
 	//オブジェクト間のリンク構築
@@ -64,22 +67,50 @@ TASK(TaskMain)
 	while(1)
 	{
 		if(UI_isEmergency(&ui))	break;
-
 		Maimai_store(&maimai, run_time);
-		LineTracer_trace(&lineTracer, 70, run_time);
+		LineTracer_trace(&lineTracer, forward, run_time);
+
+		gyro = GyroSensor_getAngularVelocity(&gyroSensor);
+		motor_r = Motor_getAngle(&rightMotor);
 		
+		switch(zone) {
+			case 0: //坂道頂点
+				if(motor_r > 2000) {
+					ecrobot_sound_tone(587, 250, 100);
+					zone = 1;
+					forward = 100;
+				}
+				break;
+			case 1: //第一チェックポイント
+				if(motor_r > 5000) {
+					ecrobot_sound_tone(523, 250, 100);
+					zone = 2;
+					forward = 80;
+				}
+				break;
+			case 2: //Basicゴール
+				if (motor_r > 25201) {
+					ecrobot_sound_tone(493,250,100);
+					LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
+					//Motor_tailControl(&tailMotor,60);
+					zone = 3;
+				} 
+				break;
+			case 3: //シーソー直前でスピード落とす
+				if (motor_r > 26200) {
+					ecrobot_sound_tone(440,250,100);
+					zone = 4;
+					forward = 40;
+				}
+				break;
+			case 4:
+				if (gyro < 500 && gyro > 700) {
+					ecrobot_sound_tone(523,10,100);
+				}
+				break;
+		}
 		run_time+=4;
 		systick_wait_ms(4);
-
-		//ディスプレイ
-		//gyro = LightSensor_getBrightness(&lightSensor);//ジャイロセンサーの値を代入する	
-		//gyro = GyroSensor_getAngularVelocity(&gyroSensor);
-
-		//display_clear(0);
-		//display_goto_xy(0,1);
-		//display_string("sub=");
-		//display_int(suba,1);
-		//display_update();
 		
 		//ロギングする
 		ecrobot_bt_data_logger(0, 0);

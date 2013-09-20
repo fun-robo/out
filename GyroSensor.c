@@ -6,7 +6,7 @@
  ****************************************************/
 
 #include "GyroSensor.h"
-#define GYRO_OFFSET  585
+#define GYRO_OFFSET  604
 
 
 
