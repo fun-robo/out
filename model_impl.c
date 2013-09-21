@@ -47,12 +47,15 @@ void ecrobot_init();
 
 TASK(TaskMain)
 {
+	//定数宣言部
+	const U32 SOUND[8] = {523,587,659,698,783,880,987,1046};
 	//変数宣言部
 	int run_time = 0;
 	int gyro = 0;
 	long motor_r = 0;
 	int zone = 0;
 	int forward = 100;
+
 	//デバイスの初期化
 	ecrobot_device_initialize();
 	//オブジェクト間のリンク構築
@@ -76,36 +79,60 @@ TASK(TaskMain)
 		switch(zone) {
 			case 0: //坂道頂点
 				if(motor_r > 2000) {
-					ecrobot_sound_tone(587, 250, 100);
+					ecrobot_sound_tone(SOUND[0], 100, 100);
 					zone = 1;
 					forward = 100;
 				}
 				break;
 			case 1: //第一チェックポイント
 				if(motor_r > 5000) {
-					ecrobot_sound_tone(523, 250, 100);
+					ecrobot_sound_tone(SOUND[1], 100, 100);
 					zone = 2;
 					forward = 80;
 				}
 				break;
-			case 2: //Basicゴール
-				if (motor_r > 25201) {
-					ecrobot_sound_tone(493,250,100);
+			case 2: //第２チェックポイント
+				if (motor_r > 9000) {
+					ecrobot_sound_tone(SOUND[2],100,100);
 					LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
 					//Motor_tailControl(&tailMotor,60);
 					zone = 3;
 				} 
 				break;
-			case 3: //シーソー直前でスピード落とす
-				if (motor_r > 26200) {
-					ecrobot_sound_tone(440,250,100);
+			case 3: //第３チェックポイント
+				if (motor_r > 14000) {
+					ecrobot_sound_tone(SOUND[3],100,100);
+					LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
+					//Motor_tailControl(&tailMotor,60);
 					zone = 4;
+				} 
+				break;
+			case 4: //第４チェックポイント
+				if (motor_r > 19000) {
+					ecrobot_sound_tone(SOUND[4],100,100);
+					LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
+					//Motor_tailControl(&tailMotor,60);
+					zone = 5;
+				} 
+				break;
+			case 5: //Basicゴール
+				if (motor_r > 25201) {
+					ecrobot_sound_tone(SOUND[5],250,100);
+					LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
+					//Motor_tailControl(&tailMotor,60);
+					zone = 6;
+				} 
+				break;
+			case 6: //シーソー直前でスピード落とす
+				if (motor_r > 26200) {
+					ecrobot_sound_tone(SOUND[6],100,100);
+					zone = 7;
 					forward = 40;
 				}
 				break;
-			case 4:
+			case 7:
 				if (gyro < 500 && gyro > 700) {
-					ecrobot_sound_tone(523,10,100);
+					ecrobot_sound_tone(SOUND[7],10,100);
 				}
 				break;
 		}
