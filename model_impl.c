@@ -113,7 +113,7 @@ TASK(TaskMain)
 		systick_wait_ms(4);
 		
 		//ロギングする
-		ecrobot_bt_data_logger(0, 0);
+		ecrobot_bt_data_logger(zone, 0);
 	}
 
 }
