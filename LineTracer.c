@@ -28,9 +28,9 @@ void LineTracer_init(LineTracer* this)
 	this->diff[1] = 0;
 	this->integral = 0;
 
-	this->KP = 0.66;
-	this->KI = 0.07;
-	this->KD = 0.07;
+	this->KP = 0.66;//0.66;
+	this->KI = 1.41;//0.07;
+	this->KD = 0.077;//0.07;
 	this->TARGET = 630;
 
 	this->bright = 0;
@@ -49,14 +49,10 @@ void LineTracer_trace(LineTracer* this, int forword, int run_time)
 	//direction = LineTracer_calcDirection(this, color);
 	this->bright = Maimai_calc(this->maimai);
 
-	int pid_turn = (int)pid(this->bright, this->TARGET, this);
+	int pid_turn = run_time * (int)pid(this->bright, this->TARGET, this);
 
 	//倒立走行を行う
-	//if(run_time < 10000) {
-	//	BalanceRunner_run(this->balanceRunner,0,100);
-	//} else {	
-		BalanceRunner_run(this->balanceRunner, pid_turn, forword);
-	//}
+	BalanceRunner_run(this->balanceRunner, pid_turn, forword);
 }
 
 //pid係数及びtargetの値を変更する

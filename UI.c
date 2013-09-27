@@ -35,12 +35,12 @@ void UI_waitStart(UI* this)
 		if(count == 5){
 			//一度目のボタン押下でキャリブレーション
 			if(flag_touch == 0){
-				white = Maimai_calc(this->maimai);
+				white = 122;//Maimai_calc(this->maimai);
 				flag_touch = 1;
 			}
 			//2度目のボタン押下でスタート
 			else if(flag_touch == 1){
-				this->lineTracer->TARGET = (F32)((white + Maimai_calc(this->maimai)) / 2);
+				this->lineTracer->TARGET = (F32)(white + 46)/2;//(F32)((white + Maimai_calc(this->maimai)) / 2);
 				flag_touch = 2;
 			}
 			else{

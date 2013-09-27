@@ -4,17 +4,11 @@
 
 #include "LineTracer.h"
 #include "UI.h"
-#include "ColorJudgement.h"
 #include "BalanceRunner.h"
 #include "TouchSensor.h"
 #include "LightSensor.h"
 #include "GyroSensor.h"
 #include "Motor.h"
-#include "GarageIn.h"
-#include "Basic.h"
-#include "LookUpGate.h"
-#include "LookUpRunner.h"
-#include "LineReturn.h"
 #include "Maimai.h"
 
 #include "kernel.h"
@@ -30,13 +24,9 @@ TouchSensor 	touchSensor;
 LightSensor 	lightSensor;
 GyroSensor 	gyroSensor;
 Motor 		leftMotor, rightMotor, tailMotor;
-GarageIn	garageIn;
-Basic		basic;
-LookUpGate lookUpGate;
-LookUpRunner lookUpRunner;
 SonarSensor sonarSensor;
 Maimai maimai;
-LineReturn	lineReturn;
+// LineReturn	lineReturn;
 
 void ecrobot_device_initialize();
 void ecrobot_device_terminate();
@@ -48,13 +38,15 @@ void ecrobot_init();
 TASK(TaskMain)
 {
 	//定数宣言部
-	const U32 SOUND[8] = {523,587,659,698,783,880,987,1046};
+	const U32 SOUND[8] = {523,587,659,698,783,880,987,1046}; //オクターブ4 ド..シ オクターブ5 ド
 	//変数宣言部
 	int run_time = 0;
-	int gyro = 0;
-	long motor_r = 0;
-	int zone = 0;
-	int forward = 100;
+	int zone = 0; //コース中のどこのゾーン
+	int forward = 5; //走行体の速さ
+	int gyro = 0; //ジャイロ値取得用の変数
+	long motor_r = 0; //右モータの回転数
+	int run_mode = 0; //false: 直進 true: ライントレース
+	
 
 	//デバイスの初期化
 	ecrobot_device_initialize();
@@ -67,75 +59,92 @@ TASK(TaskMain)
 	UI_waitStart(&ui);
 
 	// 4ms周期で、ライントレーサにトレース走行を依頼する
-	while(1)
-	{
-		if(UI_isEmergency(&ui))	break;
-		Maimai_store(&maimai, run_time);
-		LineTracer_trace(&lineTracer, forward, run_time);
+	 while(1)
+	 {
+	 	if(UI_isEmergency(&ui))	break;
+	 	Maimai_store(&maimai, run_time);
 
-		gyro = GyroSensor_getAngularVelocity(&gyroSensor);
-		motor_r = Motor_getAngle(&rightMotor);
+	 	LineTracer_trace(&lineTracer, 50, 1);
+
+	 	gyro = GyroSensor_getAngularVelocity(&gyroSensor);
+	 	motor_r = Motor_getAngle(&rightMotor);
 		
-		switch(zone) {
-			case 0: //坂道頂点
-				if(motor_r > 2000) {
-					ecrobot_sound_tone(SOUND[0], 100, 100);
-					zone = 1;
-					forward = 100;
-				}
-				break;
-			case 1: //第一チェックポイント
-				if(motor_r > 5000) {
-					ecrobot_sound_tone(SOUND[1], 100, 100);
-					zone = 2;
-					forward = 80;
-				}
-				break;
-			case 2: //第２チェックポイント
-				if (motor_r > 9000) {
-					ecrobot_sound_tone(SOUND[2],100,100);
-					LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
-					//Motor_tailControl(&tailMotor,60);
-					zone = 3;
-				} 
-				break;
-			case 3: //第３チェックポイント
-				if (motor_r > 14000) {
-					ecrobot_sound_tone(SOUND[3],100,100);
-					LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
-					//Motor_tailControl(&tailMotor,60);
-					zone = 4;
-				} 
-				break;
-			case 4: //第４チェックポイント
-				if (motor_r > 19000) {
-					ecrobot_sound_tone(SOUND[4],100,100);
-					LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
-					//Motor_tailControl(&tailMotor,60);
-					zone = 5;
-				} 
-				break;
-			case 5: //Basicゴール
-				if (motor_r > 25201) {
-					ecrobot_sound_tone(SOUND[5],250,100);
-					LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
-					//Motor_tailControl(&tailMotor,60);
-					zone = 6;
-				} 
-				break;
-			case 6: //シーソー直前でスピード落とす
-				if (motor_r > 26200) {
-					ecrobot_sound_tone(SOUND[6],100,100);
-					zone = 7;
-					forward = 40;
-				}
-				break;
-			case 7:
-				if (gyro < 500 && gyro > 700) {
-					ecrobot_sound_tone(SOUND[7],10,100);
-				}
-				break;
-		}
+	// 	switch(zone) {
+	// 		// case 0: //坂道頂点
+	// 		// 	if(motor_r > 2000) {
+	// 		// 		ecrobot_sound_tone(SOUND[0], 100, 100);
+	// 		// 		zone = 1;
+	// 		// 		forward = 100;
+	// 		// 	}
+	// 		// 	break;
+	// 		// case 1: //第一チェックポイント
+	// 		// 	if(motor_r > 5000) {
+	// 		// 		ecrobot_sound_tone(SOUND[1], 100, 100);
+	// 		// 		zone = 2;
+	// 		// 		forward = 80;
+	// 		// 	}
+	// 		// 	break;
+	// 		// case 2: //第２チェックポイント
+	// 		// 	if (motor_r > 9000) {
+	// 		// 		ecrobot_sound_tone(SOUND[2],100,100);
+	// 		// 		//LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
+	// 		// 		//Motor_tailControl(&tailMotor,60);
+	// 		// 		zone = 3;
+	// 		// 	} 
+	// 		// 	break;
+	// 		// case 3: //第３チェックポイント
+	// 		// 	if (motor_r > 14000) {
+	// 		// 		ecrobot_sound_tone(SOUND[3],100,100);
+	// 		// 		//LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
+	// 		// 		//Motor_tailControl(&tailMotor,60);
+	// 		// 		zone = 4;
+	// 		// 	} 
+	// 		// 	break;
+	// 		// case 4: //第４チェックポイント
+	// 		// 	if (motor_r > 19000) {
+	// 		// 		ecrobot_sound_tone(SOUND[4],100,100);
+	// 		// 		//LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
+	// 		// 		//Motor_tailControl(&tailMotor,60);
+	// 		// 		zone = 5;
+	// 		// 	} 
+	// 		// 	break;
+	// 		// case 5: //Basicゴール
+	// 		// 	if (motor_r > 25201) {
+	// 		// 		ecrobot_sound_tone(SOUND[5],250,100);
+	// 		// 		//LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
+	// 		// 		//Motor_tailControl(&tailMotor,60);
+	// 		// 		zone = 6;
+	// 		// 	} 
+	// 		// 	break;
+	// 		// case 6: //シーソー直前でスピード落とす
+	// 		// 	if (motor_r > 26200) {
+	// 		// 		ecrobot_sound_tone(SOUND[0],100,100);
+	// 		// 		zone = 7;
+	// 		// 		forward = 40;
+	// 		// 	}
+	// 		// 	break;
+	// 		// case 7:
+	// 		// 	if (gyro < 500 && gyro > 700) {
+	// 		// 		ecrobot_sound_tone(SOUND[7],10,100);
+
+	// 		// 	}
+	// 		// 	break;
+	// 		case 0:
+	// 			if (gyro < 450 || gyro > 750) {
+	// 				ecrobot_sound_tone(SOUND[7],10,100);
+	// 				zone = 1;
+	// 				forward = -5;
+	// 				run_time = 0;
+	// 			}
+	// 			break;
+	// 		case 1:
+	// 			if (run_time > 3000) {
+	// 				ecrobot_sound_tone(SOUND[1],10,100);
+	// 				zone = 0;
+	// 				forward = 5;
+	// 			}
+	// 			break;
+	// 	}
 		run_time+=4;
 		systick_wait_ms(4);
 		
@@ -192,36 +201,9 @@ void ecrobot_link(){
 	ui.sonarSensor = &sonarSensor;
 	ui.maimai	   = &maimai;
 
-	colorJudgement.lightSensor = &lightSensor;
-
 	balanceRunner.gyroSensor   = &gyroSensor;
 	balanceRunner.leftMotor    = &leftMotor;
 	balanceRunner.rightMotor   = &rightMotor;
-
-	garageIn.leftMotor		  = &leftMotor;
-	garageIn.rightMotor		  = &rightMotor;
-	garageIn.tailMotor       = &tailMotor;
-
-	basic.leftMotor			  = &leftMotor;
-	basic.rightMotor		  = &rightMotor;
-	basic.gyroSensor		  = &gyroSensor;
-	basic.lineTracer		  = &lineTracer;
-	basic.lightSensor         = &lightSensor;
-	basic.ui				  = &ui;
-
-	lookUpGate.lineTracer = &lineTracer;
-	lookUpGate.lookUpRunner = &lookUpRunner;
-	lookUpGate.sonarSensor = &sonarSensor;
-	lookUpGate.colorJudgement  = &colorJudgement;
-
-	lookUpRunner.gyroSensor = &gyroSensor;
-	lookUpRunner.leftMotor = &leftMotor;
-	lookUpRunner.rightMotor = &rightMotor;
-	lookUpRunner.tailMotor = &tailMotor;
-
-	lineReturn.lightSensor = &lightSensor;
-	lineReturn.balanceRunner = &balanceRunner;
-	lineReturn.lineTracer = &lineTracer;
 
 	maimai.lightSensor = &lightSensor;
 }
@@ -230,7 +212,6 @@ void ecrobot_init(){
 	// 各オブジェクトを初期化する
 	LineTracer_init(&lineTracer);
 	UI_init(&ui);
-	ColorJudgement_init(&colorJudgement);
 	BalanceRunner_init(&balanceRunner);
 	TouchSensor_init(&touchSensor, NXT_PORT_S4);
 	LightSensor_init(&lightSensor, NXT_PORT_S3);
@@ -238,11 +219,7 @@ void ecrobot_init(){
 	Motor_init(&leftMotor, NXT_PORT_C);
 	Motor_init(&rightMotor, NXT_PORT_B);
 	Motor_init(&tailMotor, NXT_PORT_A);
-	Basic_init(&basic);
 	SonarSensor_init(&sonarSensor, NXT_PORT_S2);
-	LookUpGate_init(&lookUpGate);
-	LookUpRunner_init(&lookUpRunner);
-	LineReturn_init(&lineReturn);
 	Maimai_init(&maimai);
 }
 
