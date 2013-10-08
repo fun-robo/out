@@ -3,7 +3,7 @@
 void Basic_init(Basic *this)
 {
 	this->run_time = 0;
-	this->speed = 80;
+	this->speed = 120;
 	this->cur_phase = 0;
 }
 
@@ -17,14 +17,14 @@ void Basic_run(Basic *this)
 			if(DistMeasure_getDistance(this->distMeasure) > 2300) {
 				ecrobot_sound_tone(SOUND[0], 150, 100);
 				this->cur_phase = SLOPE_TOP;
-				//this->speed = 100;
+				this->speed = 100;
 			}
 			break;
 		case SLOPE_TOP: //第一チェックポイント
 			if(DistMeasure_getDistance(this->distMeasure) > 5200) {
 				ecrobot_sound_tone(SOUND[1], 150, 100);
 				this->cur_phase = GATE_ONE;
-				//this->speed = 80;
+				this->speed = 130;
 			}
 			break;
 		case GATE_ONE: //第２チェックポイント
@@ -43,6 +43,7 @@ void Basic_run(Basic *this)
 			if (DistMeasure_getDistance(this->distMeasure) > 19100) {
 				ecrobot_sound_tone(SOUND[4],150,100);
 				this->cur_phase = GATE_FOUR;
+				this->speed = 90;
 			} 
 			break;
 		case GATE_FOUR: //Basicゴール

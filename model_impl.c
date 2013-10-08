@@ -14,6 +14,7 @@
 #include "DistMeasure.h"
 #include "SeeSaw.h"
 #include "Straight.h"
+#include "RunMode.h"
 
 #include "kernel.h"
 #include "kernel_id.h"
@@ -38,6 +39,7 @@ Basic basic;
 DistMeasure distMeasure;
 SeeSaw seeSaw;
 Straight straight;
+RunMode runMode;
 // LineReturn	lineReturn;
 
 void ecrobot_device_initialize();
@@ -73,7 +75,7 @@ TASK(TaskMain)
 	 while(1)
 	 {
 	 	if(UI_isEmergency(&ui))	break;
-	 	Maimai_store(&maimai, run_time);
+	 	if(runMode.run_mode)	Maimai_store(&maimai, run_time);
 
 		switch (zone) {
 			case BASIC_RUN:
@@ -137,6 +139,7 @@ void ecrobot_link(){
 	lineTracer.balanceRunner   = &balanceRunner;
 	lineTracer.lightSensor	     = &lightSensor;
 	lineTracer.maimai            = &maimai;
+	lineTracer.runMode		=&runMode;
 
 	ui.touchSensor		   = &touchSensor;
 	ui.tailMotor		   = &tailMotor;
@@ -145,6 +148,7 @@ void ecrobot_link(){
 	ui.lineTracer = &lineTracer;
 	ui.sonarSensor = &sonarSensor;
 	ui.maimai	   = &maimai;
+	ui.runMode	   = &runMode;
 
 	balanceRunner.gyroSensor   = &gyroSensor;
 	balanceRunner.leftMotor    = &leftMotor;
@@ -171,8 +175,9 @@ void ecrobot_link(){
 
 void ecrobot_init(){
 	// 各オブジェクトを初期化する
-	LineTracer_init(&lineTracer);
+	RunMode_init(&runMode);
 	UI_init(&ui);
+	LineTracer_init(&lineTracer);
 	BalanceRunner_init(&balanceRunner);
 	TouchSensor_init(&touchSensor, NXT_PORT_S4);
 	LightSensor_init(&lightSensor, NXT_PORT_S3);

@@ -1,9 +1,9 @@
 /****************************************************
- *  LineTracer.c                                         
- *  Created on: 2012/05/05 8:31:07                      
- *  Implementation of the Class LineTracer       
- *  Original author: hiroyuki.watanabe                     
- ****************************************************/
+*  LineTracer.c                                         
+*  Created on: 2012/05/05 8:31:07                      
+*  Implementation of the Class LineTracer       
+*  Original author: hiroyuki.watanabe                     
+****************************************************/
 
 #include "LineTracer.h"
 #include "Direction.h"
@@ -27,10 +27,15 @@ void LineTracer_init(LineTracer* this)
 	this->diff[0] = 0;
 	this->diff[1] = 0;
 	this->integral = 0;
-
-	this->KP = 0.6;//試走会0.6;//0.66;//0.6;//0.66;
-	this->KI = 0.08;//試走会0.08;//0.07;//0.08;//0.07;
-	this->KD = 0.124;//試走会0.12;//0.1;//0.07;
+	if(this->runMode->run_mode){
+		this->KP = 0.6;//試走会0.6;//0.66;//0.6;//0.66;
+		this->KI = 0.08;//試走会0.08;//0.07;//0.08;//0.07;
+		this->KD = 0.124;//試走会0.12;//0.1;//0.07;
+	}else{
+	this->KP = 0.8;
+	this->KI = 0.07;
+	this->KD = 0.06;
+	}
 	this->TARGET = 120;
 
 	this->bright = 0;
@@ -39,7 +44,9 @@ void LineTracer_init(LineTracer* this)
 // ライントレースを行う
 void LineTracer_trace(LineTracer* this, int forword, int run_time)
 {
-	this->bright = Maimai_calc(this->maimai);
+	if(this->runMode->run_mode)	this->bright = Maimai_calc(this->maimai);
+	else	this->bright = LightSensor_getBrightness(this->lightSensor);
+
 	int pid_turn = run_time * (int)pid(this->bright, this->TARGET, this);
 
 	//倒立走行を行う

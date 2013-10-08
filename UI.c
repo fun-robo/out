@@ -12,7 +12,6 @@ static int UI_remoteStart(UI* this);
 
 void UI_init(UI* this)
 {
-
 }
 
 void UI_waitStart(UI* this)
@@ -29,7 +28,8 @@ void UI_waitStart(UI* this)
 		// 尻尾を立てて完全停止状態にする
 		Motor_tailControl(this->tailMotor, TAIL_ANGLE_STAND_UP);
 		//点滅の輝度値を格納する
-		Maimai_store(this->maimai, run_time);
+
+		if(this->runMode->run_mode)	Maimai_store(this->maimai, run_time);
 
 		if(flag_touch == 3)	count = 5;
 		else if(TouchSensor_isPressed(this->touchSensor))	count++;
@@ -37,12 +37,15 @@ void UI_waitStart(UI* this)
 		if(count == 5){
 			//一度目のボタン押下でキャリブレーション
 			if(flag_touch == 0){
-				white = Maimai_calc(this->maimai);
+				if(this->runMode->run_mode)	white = Maimai_calc(this->maimai);
+				else	white =  LightSensor_getBrightness(this->lightSensor);
+
 				flag_touch = 1;
 			}
 			//2度目のボタン押下でスタート
 			else if(flag_touch == 1){
-				this->lineTracer->TARGET = (F32)((white + Maimai_calc(this->maimai)) / 2);
+				if(this->runMode->run_mode)	this->lineTracer->TARGET = (F32)((white + Maimai_calc(this->maimai)) / 2);
+				else	this->lineTracer->TARGET = (F32)((white +LightSensor_getBrightness(this->lightSensor)) / 2);
 				flag_touch = 2;
 				run_time1 = run_time;
 			}

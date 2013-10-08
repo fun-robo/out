@@ -12,7 +12,7 @@
 #include "BalanceRunner.h"
 #include "LightSensor.h"
 #include "Maimai.h"
-
+#include "RunMode.h"
 
 // 属性を保持するための構造体の定義
 typedef struct LineTracer
@@ -21,13 +21,14 @@ typedef struct LineTracer
 	BalanceRunner *balanceRunner;
 	LightSensor *lightSensor;
 	Maimai *maimai;
+	RunMode *runMode;
+
 	S32 diff[2];
 	F32 integral;
-
 	F32 KP;
 	F32 KI;
 	F32 KD;
-    	F32 TARGET;
+    F32 TARGET;
 	U16 bright;
 } LineTracer;
 
