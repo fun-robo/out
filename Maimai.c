@@ -15,7 +15,7 @@ void Maimai_store(Maimai* this, int run_time){
 
 	//4msec周期で輝度値を取得し配列に格納
 	this->light_value[this->index]  = LightSensor_getBrightness(this->lightSensor);
-	this->index++;
+	(this->index)++;
 	if(this->index == NUM)	this->index = 0;
 }
 

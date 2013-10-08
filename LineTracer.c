@@ -28,10 +28,10 @@ void LineTracer_init(LineTracer* this)
 	this->diff[1] = 0;
 	this->integral = 0;
 
-	this->KP = 0.66;//0.66;
-	this->KI = 1.41;//0.07;
-	this->KD = 0.077;//0.07;
-	this->TARGET = 630;
+	this->KP = 0.6;//試走会0.6;//0.66;//0.6;//0.66;
+	this->KI = 0.08;//試走会0.08;//0.07;//0.08;//0.07;
+	this->KD = 0.124;//試走会0.12;//0.1;//0.07;
+	this->TARGET = 120;
 
 	this->bright = 0;
 }
@@ -39,16 +39,7 @@ void LineTracer_init(LineTracer* this)
 // ライントレースを行う
 void LineTracer_trace(LineTracer* this, int forword, int run_time)
 {
-	//COLOR color;			// 路面の色
-	//DIRECTION direction;		// 走行体の向き
-	//
-	//// 路面の色を判定する
-	//color = ColorJudgement_judgeColor(this->colorJudgement);
-	//
-	//// 走行体の向きを計算する
-	//direction = LineTracer_calcDirection(this, color);
 	this->bright = Maimai_calc(this->maimai);
-
 	int pid_turn = run_time * (int)pid(this->bright, this->TARGET, this);
 
 	//倒立走行を行う
@@ -83,7 +74,6 @@ static DIRECTION LineTracer_calcDirection(LineTracer* this, COLOR color)
 	}
 }
 
-
 static F32 pid(U16 sensor_val, U16 target_val,LineTracer *this)
 {
 	F32 p,i,d;
@@ -101,4 +91,9 @@ static F32 pid(U16 sensor_val, U16 target_val,LineTracer *this)
 
 
 	return (p + i + d);
+}
+
+U16 LineTracer_getBright(LineTracer *this)
+{
+	return this->bright;
 }

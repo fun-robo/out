@@ -10,10 +10,15 @@
 #include "GyroSensor.h"
 #include "Motor.h"
 #include "Maimai.h"
-
+#include "Basic.h"
+#include "DistMeasure.h"
 #include "kernel.h"
 #include "kernel_id.h"
 #include "ecrobot_interface.h"
+
+typedef enum Zone {
+		BASIC_RUN, SEESAW_RUN, GARAGE_IN,
+} Zone;
 
 // オブジェクトを静的に確保する
 LineTracer 	lineTracer;
@@ -26,6 +31,8 @@ GyroSensor 	gyroSensor;
 Motor 		leftMotor, rightMotor, tailMotor;
 SonarSensor sonarSensor;
 Maimai maimai;
+Basic basic;
+DistMeasure distMeasure;
 // LineReturn	lineReturn;
 
 void ecrobot_device_initialize();
@@ -38,15 +45,13 @@ void ecrobot_init();
 TASK(TaskMain)
 {
 	//定数宣言部
-	const U32 SOUND[8] = {523,587,659,698,783,880,987,1046}; //オクターブ4 ド..シ オクターブ5 ド
+	//const U32 SOUND[8] = {523,587,659,698,783,880,987,1046}; //オクターブ4 ド..シ オクターブ5 ド
 	//変数宣言部
 	int run_time = 0;
-	int zone = 0; //コース中のどこのゾーン
-	int forward = 5; //走行体の速さ
-	int gyro = 0; //ジャイロ値取得用の変数
-	long motor_r = 0; //右モータの回転数
-	int run_mode = 0; //false: 直進 true: ライントレース
-	
+	U16 bright = 0;
+	//unsigned char bright_15_8 = 0;
+	//unsigned char bright_7_0 = 0;
+	int zone = BASIC_RUN; //コース中のどこのゾーン
 
 	//デバイスの初期化
 	ecrobot_device_initialize();
@@ -57,6 +62,7 @@ TASK(TaskMain)
 	
 	// UIに開始待ちを依頼する
 	UI_waitStart(&ui);
+	Motor_tailControl(&tailMotor, TAIL_ANGLE_DRIVE);
 
 	// 4ms周期で、ライントレーサにトレース走行を依頼する
 	 while(1)
@@ -64,92 +70,24 @@ TASK(TaskMain)
 	 	if(UI_isEmergency(&ui))	break;
 	 	Maimai_store(&maimai, run_time);
 
-	 	LineTracer_trace(&lineTracer, 50, 1);
+		//switch (zone) {
+			//case BASIC_RUN:
+				Basic_run(&basic);
+				// if (Basic_getCurPhase(&basic) == BASIC_GOAL) {
+				// 	zone = SEESAW_RUN;
+				// }
+				// break;
+			//	break;
+		//}
 
-	 	gyro = GyroSensor_getAngularVelocity(&gyroSensor);
-	 	motor_r = Motor_getAngle(&rightMotor);
+		//bright = LineTracer_getBright(&lineTracer);
 		
-	// 	switch(zone) {
-	// 		// case 0: //坂道頂点
-	// 		// 	if(motor_r > 2000) {
-	// 		// 		ecrobot_sound_tone(SOUND[0], 100, 100);
-	// 		// 		zone = 1;
-	// 		// 		forward = 100;
-	// 		// 	}
-	// 		// 	break;
-	// 		// case 1: //第一チェックポイント
-	// 		// 	if(motor_r > 5000) {
-	// 		// 		ecrobot_sound_tone(SOUND[1], 100, 100);
-	// 		// 		zone = 2;
-	// 		// 		forward = 80;
-	// 		// 	}
-	// 		// 	break;
-	// 		// case 2: //第２チェックポイント
-	// 		// 	if (motor_r > 9000) {
-	// 		// 		ecrobot_sound_tone(SOUND[2],100,100);
-	// 		// 		//LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
-	// 		// 		//Motor_tailControl(&tailMotor,60);
-	// 		// 		zone = 3;
-	// 		// 	} 
-	// 		// 	break;
-	// 		// case 3: //第３チェックポイント
-	// 		// 	if (motor_r > 14000) {
-	// 		// 		ecrobot_sound_tone(SOUND[3],100,100);
-	// 		// 		//LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
-	// 		// 		//Motor_tailControl(&tailMotor,60);
-	// 		// 		zone = 4;
-	// 		// 	} 
-	// 		// 	break;
-	// 		// case 4: //第４チェックポイント
-	// 		// 	if (motor_r > 19000) {
-	// 		// 		ecrobot_sound_tone(SOUND[4],100,100);
-	// 		// 		//LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
-	// 		// 		//Motor_tailControl(&tailMotor,60);
-	// 		// 		zone = 5;
-	// 		// 	} 
-	// 		// 	break;
-	// 		// case 5: //Basicゴール
-	// 		// 	if (motor_r > 25201) {
-	// 		// 		ecrobot_sound_tone(SOUND[5],250,100);
-	// 		// 		//LineTracer_changePID(&lineTracer,0.66,0.07,0.07,LineTracer_getTarget(&lineTracer)+10);
-	// 		// 		//Motor_tailControl(&tailMotor,60);
-	// 		// 		zone = 6;
-	// 		// 	} 
-	// 		// 	break;
-	// 		// case 6: //シーソー直前でスピード落とす
-	// 		// 	if (motor_r > 26200) {
-	// 		// 		ecrobot_sound_tone(SOUND[0],100,100);
-	// 		// 		zone = 7;
-	// 		// 		forward = 40;
-	// 		// 	}
-	// 		// 	break;
-	// 		// case 7:
-	// 		// 	if (gyro < 500 && gyro > 700) {
-	// 		// 		ecrobot_sound_tone(SOUND[7],10,100);
-
-	// 		// 	}
-	// 		// 	break;
-	// 		case 0:
-	// 			if (gyro < 450 || gyro > 750) {
-	// 				ecrobot_sound_tone(SOUND[7],10,100);
-	// 				zone = 1;
-	// 				forward = -5;
-	// 				run_time = 0;
-	// 			}
-	// 			break;
-	// 		case 1:
-	// 			if (run_time > 3000) {
-	// 				ecrobot_sound_tone(SOUND[1],10,100);
-	// 				zone = 0;
-	// 				forward = 5;
-	// 			}
-	// 			break;
-	// 	}
-		run_time+=4;
 		systick_wait_ms(4);
+		run_time+=4;
 		
 		//ロギングする
-		ecrobot_bt_data_logger(zone, 0);
+		ecrobot_bt_data_logger(0, 0);
+		//ecrobot_bt_data_logger( ,bright);
 	}
 
 }
@@ -205,6 +143,11 @@ void ecrobot_link(){
 	balanceRunner.leftMotor    = &leftMotor;
 	balanceRunner.rightMotor   = &rightMotor;
 
+	basic.lineTracer = &lineTracer;
+	basic.distMeasure = &distMeasure;
+
+	distMeasure.rightMotor = &rightMotor;
+
 	maimai.lightSensor = &lightSensor;
 }
 
@@ -221,6 +164,7 @@ void ecrobot_init(){
 	Motor_init(&tailMotor, NXT_PORT_A);
 	SonarSensor_init(&sonarSensor, NXT_PORT_S2);
 	Maimai_init(&maimai);
+	DistMeasure_init(&distMeasure);
+	Basic_init(&basic);
 }
-
 

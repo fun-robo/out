@@ -21,6 +21,7 @@ void UI_waitStart(UI* this)
 
 	char flag_touch = 0;
 	int run_time = 0;
+	int run_time1 = 1000000;
 	int count = 0;
 	U16 white = 0;	
 	while(1)
@@ -30,22 +31,31 @@ void UI_waitStart(UI* this)
 		//点滅の輝度値を格納する
 		Maimai_store(this->maimai, run_time);
 
-		if(TouchSensor_isPressed(this->touchSensor))	count++;
+		if(flag_touch == 3)	count = 5;
+		else if(TouchSensor_isPressed(this->touchSensor))	count++;
 		else	count = 0;
 		if(count == 5){
 			//一度目のボタン押下でキャリブレーション
 			if(flag_touch == 0){
-				white = 122;//Maimai_calc(this->maimai);
+				white = Maimai_calc(this->maimai);
 				flag_touch = 1;
 			}
 			//2度目のボタン押下でスタート
 			else if(flag_touch == 1){
-				this->lineTracer->TARGET = (F32)(white + 46)/2;//(F32)((white + Maimai_calc(this->maimai)) / 2);
+				this->lineTracer->TARGET = (F32)((white + Maimai_calc(this->maimai)) / 2);
 				flag_touch = 2;
+				run_time1 = run_time;
 			}
+			// else if(flag_touch == 2){
+			//  	ecrobot_sound_tone(440, 150, 100);
+			//  	Motor_tailControl(this->tailMotor, TAIL_ANGLE_STAND_UP+30);
+			//  	if((run_time - run_time1) > 1000){
+			//  		flag_touch = 3;
+			//  	}
+			// }
 			else{
 				Motor_tailControl(this->tailMotor, TAIL_ANGLE_DRIVE);
-				break;
+			 	break;
 			}
 		}
 		

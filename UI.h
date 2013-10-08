@@ -16,7 +16,7 @@
 #include "Maimai.h"
 
 
-#define TAIL_ANGLE_STAND_UP 109 /* 完全停止時の角度[度] */
+#define TAIL_ANGLE_STAND_UP 110//103/* 完全停止時の角度[度] */
 #define TAIL_ANGLE_DRIVE      3 /* バランス走行時の角度[度] */
 #define CMD_START            '1'/* リモートスタートコマンド(変更禁止) */
 
