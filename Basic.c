@@ -51,10 +51,11 @@ void Basic_run(Basic *this)
 				LineTracer_changePID(this->lineTracer,0.66,0.08,0.124,
 							LineTracer_getTarget(this->lineTracer)+15);
 				this->speed = 60;
+				this->cur_phase = BASIC_GOAL;
 			}
 			break;
-		// case BASIC_GOAL:
-		// 	break;
+		case BASIC_GOAL:
+		 	break;
 	}
 }
 

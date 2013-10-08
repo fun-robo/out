@@ -12,6 +12,9 @@
 #include "Maimai.h"
 #include "Basic.h"
 #include "DistMeasure.h"
+#include "SeeSaw.h"
+#include "Straight.h"
+
 #include "kernel.h"
 #include "kernel_id.h"
 #include "ecrobot_interface.h"
@@ -33,6 +36,8 @@ SonarSensor sonarSensor;
 Maimai maimai;
 Basic basic;
 DistMeasure distMeasure;
+SeeSaw seeSaw;
+Straight straight;
 // LineReturn	lineReturn;
 
 void ecrobot_device_initialize();
@@ -70,15 +75,17 @@ TASK(TaskMain)
 	 	if(UI_isEmergency(&ui))	break;
 	 	Maimai_store(&maimai, run_time);
 
-		//switch (zone) {
-			//case BASIC_RUN:
+		switch (zone) {
+			case BASIC_RUN:
 				Basic_run(&basic);
-				// if (Basic_getCurPhase(&basic) == BASIC_GOAL) {
-				// 	zone = SEESAW_RUN;
-				// }
-				// break;
-			//	break;
-		//}
+				if (Basic_getCurPhase(&basic) == BASIC_GOAL) {
+				 	zone = SEESAW_RUN;
+				}
+			break;
+			case SEESAW_RUN:
+				SeeSaw_run(&seeSaw);
+			break;
+		}
 
 		//bright = LineTracer_getBright(&lineTracer);
 		
@@ -149,6 +156,17 @@ void ecrobot_link(){
 	distMeasure.rightMotor = &rightMotor;
 
 	maimai.lightSensor = &lightSensor;
+
+	seeSaw.gyroSensor	 = &gyroSensor;
+	seeSaw.lineTracer	 = &lineTracer;
+	seeSaw.rightMotor	 = &rightMotor;
+	seeSaw.leftMotor	 = &leftMotor;
+	seeSaw.straight		 = &straight;
+
+	straight.balanceRunner = &balanceRunner;
+	straight.rightMotor  = &rightMotor;
+	straight.leftMotor   = &leftMotor;
+	straight.gyroSensor  = &gyroSensor;
 }
 
 void ecrobot_init(){
@@ -166,5 +184,7 @@ void ecrobot_init(){
 	Maimai_init(&maimai);
 	DistMeasure_init(&distMeasure);
 	Basic_init(&basic);
+	SeeSaw_init(&seeSaw);
+	Straight_init(&straight);
 }
 
