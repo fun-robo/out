@@ -4,6 +4,7 @@
 #include "BalanceRunner.h"
 #include "Motor.h"
 #include "GyroSensor.h"
+#include "TailRunner.h"
 
 typedef struct Straight
 {
@@ -11,6 +12,7 @@ typedef struct Straight
 	Motor		  *rightMotor;
 	Motor		  *leftMotor;
 	GyroSensor	  *gyroSensor;
+	TailRunner    *tailRunner;
 	BOOL		  finish_flag;
 	long		  r_motor_angle;
 	long		  l_motor_angle;
@@ -19,5 +21,7 @@ typedef struct Straight
 void Straight_init(Straight *this);
 void Straight_run(Straight *this, int forword);
 void Straight_finish(Straight *this);
+void Straight_tail(Straight *this, int forward);
+int Calc_angle(Straight *this);
 
 #endif

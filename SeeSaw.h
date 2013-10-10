@@ -13,6 +13,7 @@ typedef struct SeeSaw
 	Motor	   *rightMotor;
 	Motor      *leftMotor;
 	Straight   *straight;
+	TailRunner *tailRunner;
 	int run_time;
 	int phase;
 	long angle;

@@ -115,3 +115,18 @@ U16 LineTracer_getMaimaiTarget(LineTracer* this)
 {
 	return this->MAIMAI_TARGET;
 }
+
+void LineTracer_trace_nonbalance(LineTracer* this, int forword, int run_time)
+{
+	// 走行体の向きを計算する
+	this->bright = Maimai_calc(this->maimai);
+
+	int pid_turn = run_time * (int)pid(this->bright, this->TARGET, this);
+
+	NonBalanceRunner_run(this->balanceRunner, pid_turn, forword);
+
+}
+
+F32 get_TARGET_tail(LineTracer *this){
+	return this->TARGET_tail;
+}

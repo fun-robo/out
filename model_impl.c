@@ -15,6 +15,8 @@
 #include "SeeSaw.h"
 #include "Straight.h"
 #include "RunMode.h"
+#include "TailRunner.h"
+#include "LineReturn.h"
 
 #include "kernel.h"
 #include "kernel_id.h"
@@ -40,7 +42,8 @@ DistMeasure distMeasure;
 SeeSaw seeSaw;
 Straight straight;
 RunMode runMode;
-// LineReturn	lineReturn;
+TailRunner tailRunner;
+LineReturn lineReturn;
 
 void ecrobot_device_initialize();
 void ecrobot_device_terminate();
@@ -87,8 +90,11 @@ TASK(TaskMain)
 				}
 			break;
 			case SEESAW_RUN:
-				SeeSaw_run(&seeSaw);
+				if(SeeSaw_run(&seeSaw)) zone = GARAGE_IN;
 			break;
+			case GARAGE_IN:
+				LineReturn_run(&lineReturn);
+				break;
 		}
 
 		//bright = LineTracer_getBright(&lineTracer);
@@ -168,11 +174,23 @@ void ecrobot_link(){
 	seeSaw.rightMotor	 = &rightMotor;
 	seeSaw.leftMotor	 = &leftMotor;
 	seeSaw.straight		 = &straight;
+	seeSaw.tailRunner	 = &tailRunner;
 
 	straight.balanceRunner = &balanceRunner;
 	straight.rightMotor  = &rightMotor;
 	straight.leftMotor   = &leftMotor;
 	straight.gyroSensor  = &gyroSensor;
+	straight.tailRunner	 = &tailRunner;
+
+	tailRunner.tailMotor = &tailMotor;
+	tailRunner.lineTracer = &lineTracer;
+	tailRunner.gyroSensor = &gyroSensor;
+	tailRunner.balanceRunner = &balanceRunner;
+
+	lineReturn.tailRunner = &tailRunner;
+	lineReturn.gyroSensor = &gyroSensor;
+	lineReturn.straight   = &straight;
+	lineReturn.rightMotor = &rightMotor;
 }
 
 void ecrobot_init(){
@@ -193,5 +211,6 @@ void ecrobot_init(){
 	Basic_init(&basic);
 	SeeSaw_init(&seeSaw);
 	Straight_init(&straight);
+	TailRunner_init(&tailRunner);
+	LineReturn_init(&lineReturn);
 }
-

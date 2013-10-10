@@ -57,8 +57,8 @@ void Basic_run(Basic *this)
 	// 		break;
 	// 	case BASIC_GOAL:
 	// 	 	break;
-		case GATE_FOUR: //Basicゴール
-			if (DistMeasure_getDistance(this->distMeasure) > 6101) {
+		case GATE_FOUR: //Basicゴール6101
+			if (DistMeasure_getDistance(this->distMeasure) > 6101){
 				ecrobot_sound_tone(SOUND[5],250,100);
 				LineTracer_changePID(this->lineTracer,0.66,0.08,0.124,
 							LineTracer_getTarget(this->lineTracer)+15);

@@ -4,9 +4,9 @@
 #include "GyroSensor.h"
 #include "ecrobot_interface.h"
 
-#define OFFSET 585//604
-#define ACCEL  605//624
-#define BACK   566//585
+#define OFFSET 604
+#define ACCEL  624
+#define BACK   585
 
 //初期化する
 void SeeSaw_init(SeeSaw* this)
@@ -17,11 +17,11 @@ void SeeSaw_init(SeeSaw* this)
 }
 
 //シーソー走行をする
-int SeeSaw_run(SeeSaw *this){
+BOOL SeeSaw_run(SeeSaw *this){
 	switch(this->phase){
 		//ライントレースで段差検知する、検知したら次
 	case 0:
-		LineTracer_trace(this->lineTracer, 20, 1);
+		LineTracer_trace(this->lineTracer, 30, 1);
 		if(GyroSensor_getAngularVelocity(this->gyroSensor) > 700){	
 			ecrobot_sound_tone(261, 100, 100);
 			this->run_time = 0;
@@ -37,7 +37,7 @@ int SeeSaw_run(SeeSaw *this){
 			this->gyroSensor->offset = OFFSET;
 		}
 
-		if(this->run_time > 260){
+		if(this->run_time > 270){
 			ecrobot_sound_tone(261, 100, 100);
 			this->run_time = 0;
 			this->phase = 2;
@@ -48,7 +48,7 @@ int SeeSaw_run(SeeSaw *this){
 		//シーソーをがったんさせる、一定時間経ったら次
 	case 2:
 		Straight_run(this->straight , 30);
-		if((Motor_getAngle(this->rightMotor) - (this->angle)) > 558){
+		if((Motor_getAngle(this->rightMotor) - (this->angle)) > 538){
 			ecrobot_sound_tone(261, 100, 100);
 			this->phase = 3;
 			this->run_time = 0;
@@ -88,29 +88,19 @@ int SeeSaw_run(SeeSaw *this){
 		break;
 		//シーソーから降りる
 	case 5:
-		Straight_run(this->straight , 50);
+		Straight_run(this->straight , 40);
 		if(this->run_time < 200){
 			this->gyroSensor->offset = BACK;
 		}else{
 			this->gyroSensor->offset = OFFSET;
 		}
-		
-
-		if(this->run_time > 40000){
+		if(this->run_time > 2800){
 			this->phase = 6;
 			Straight_finish(this->straight);
+			return TRUE;
 		}
 		break;
-		//未実装、気にしなくて良いよ
-	case 6:
-		LineTracer_trace(this->lineTracer, 5, 1);
-		break;
 	}
-
 	this->run_time+=4;
-	return this->phase;
-
+	return FALSE;
 }
-
-
-

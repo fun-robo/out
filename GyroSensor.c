@@ -27,3 +27,6 @@ unsigned int GyroSensor_getOffset(GyroSensor* this)
 	return this->offset;
 } 
 
+void GyroSensor_changeOffset (GyroSensor* this, unsigned int offset){
+  this->offset = offset;
+}

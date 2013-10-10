@@ -12,7 +12,7 @@ USER_INC_PATH= $(NXTOSEK_ROOT)/ecrobot/nxtway_gs_balancer
 USER_LIB = nxtway_gs_balancer
 
 # Cソースファイル
-TARGET_SOURCES = balancer_param.c LineTracer.c  UI.c BalanceRunner.c TouchSensor.c GyroSensor.c LightSensor.c Motor.c model_impl.c SonarSensor.c Maimai.c Basic.c DistMeasure.c SeeSaw.c Straight.c RunMode.c
+TARGET_SOURCES = balancer_param.c LineTracer.c  UI.c BalanceRunner.c TouchSensor.c GyroSensor.c LightSensor.c Motor.c model_impl.c SonarSensor.c Maimai.c Basic.c DistMeasure.c SeeSaw.c Straight.c RunMode.c TailRunner.c LineReturn.c
 
 # TOPPERS/ATK1(OSEK)設定ファイル
 TOPPERS_OSEK_OIL_SOURCE = model_impl.oil
