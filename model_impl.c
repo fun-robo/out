@@ -82,6 +82,8 @@ TASK(TaskMain)
 				Basic_run(&basic);
 				if (Basic_getCurPhase(&basic) == BASIC_GOAL) {
 				 	zone = SEESAW_RUN;
+				 	RunMode_change(&runMode,MAIMAI);
+				 	LineTracer_changePID(&lineTracer,0.6,0.08,0.124,LineTracer_getMaimaiTarget(&lineTracer));
 				}
 			break;
 			case SEESAW_RUN:

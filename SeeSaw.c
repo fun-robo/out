@@ -4,9 +4,9 @@
 #include "GyroSensor.h"
 #include "ecrobot_interface.h"
 
-#define OFFSET 604
-#define ACCEL  624
-#define BACK   585
+#define OFFSET 585//604
+#define ACCEL  605//624
+#define BACK   566//585
 
 //初期化する
 void SeeSaw_init(SeeSaw* this)

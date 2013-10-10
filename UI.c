@@ -30,24 +30,35 @@ void UI_waitStart(UI* this)
 		//点滅の輝度値を格納する
 
 		if(this->runMode->run_mode)	Maimai_store(this->maimai, run_time);
-
-		if(flag_touch == 3)	count = 5;
+		if(flag_touch == 2) {
+			RunMode_change(this->runMode, LINE_TRACE);
+			ecrobot_set_light_sensor_active(this->lightSensor->inputPort);
+		}
+		if(flag_touch == 5)	count = 5;
 		else if(TouchSensor_isPressed(this->touchSensor))	count++;
 		else	count = 0;
 		if(count == 5){
 			//一度目のボタン押下でキャリブレーション
 			if(flag_touch == 0){
-				if(this->runMode->run_mode)	white = Maimai_calc(this->maimai);
-				else	white =  LightSensor_getBrightness(this->lightSensor);
-
+				white = Maimai_calc(this->maimai);
 				flag_touch = 1;
 			}
 			//2度目のボタン押下でスタート
 			else if(flag_touch == 1){
-				if(this->runMode->run_mode)	this->lineTracer->TARGET = (F32)((white + Maimai_calc(this->maimai)) / 2);
-				else	this->lineTracer->TARGET = (F32)((white +LightSensor_getBrightness(this->lightSensor)) / 2);
+				this->lineTracer->MAIMAI_TARGET = (F32)((white + Maimai_calc(this->maimai)) * 2/ 3);
 				flag_touch = 2;
+			}
+			else if(flag_touch == 2){
+				white = LightSensor_getBrightness(this->lightSensor);
+				flag_touch = 3;
+			}
+			else if(flag_touch == 3){
+				this->lineTracer->TARGET = (F32)((white +LightSensor_getBrightness(this->lightSensor)) / 2);
+				flag_touch = 4;
 				run_time1 = run_time;
+			}
+			else if(flag_touch == 4){
+				flag_touch = 5;
 			}
 			// else if(flag_touch == 2){
 			//  	ecrobot_sound_tone(440, 150, 100);
@@ -75,9 +86,15 @@ void UI_waitStart(UI* this)
 		display_clear(0);
 		display_goto_xy(0,1);
 		if(flag_touch == 1){
-			display_string("white=");
+			display_string("maiwhite=");
 			display_int(white,1);
 		}else if(flag_touch == 2){
+			display_string("maiblack=");
+			display_int(this->lineTracer->MAIMAI_TARGET*2 - white,1);
+		}else if(flag_touch == 3){
+			display_string("white=");
+			display_int(white,1);
+		}else if(flag_touch == 4){
 			display_string("black=");
 			display_int(this->lineTracer->TARGET*2 - white,1);
 		}

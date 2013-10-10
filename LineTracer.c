@@ -37,18 +37,24 @@ void LineTracer_init(LineTracer* this)
 	this->KD = 0.06;
 	}
 	this->TARGET = 120;
-
+	this->MAIMAI_TARGET = 0;
 	this->bright = 0;
 }
 
 // ライントレースを行う
 void LineTracer_trace(LineTracer* this, int forword, int run_time)
 {
-	if(this->runMode->run_mode)	this->bright = Maimai_calc(this->maimai);
-	else	this->bright = LightSensor_getBrightness(this->lightSensor);
-
-	int pid_turn = run_time * (int)pid(this->bright, this->TARGET, this);
-
+	int pid_turn;
+	if(this->runMode->run_mode){
+		this->bright = Maimai_calc(this->maimai);
+		pid_turn = run_time * (int)pid(this->bright, this->MAIMAI_TARGET, this);
+	}
+	else {
+		this->bright = LightSensor_getBrightness(this->lightSensor);
+		run_time = (-1) * run_time;
+		pid_turn = run_time * (int)pid(this->bright, this->TARGET, this);
+	}
+	                      
 	//倒立走行を行う
 	BalanceRunner_run(this->balanceRunner, pid_turn, forword);
 }
@@ -103,4 +109,9 @@ static F32 pid(U16 sensor_val, U16 target_val,LineTracer *this)
 U16 LineTracer_getBright(LineTracer *this)
 {
 	return this->bright;
+}
+
+U16 LineTracer_getMaimaiTarget(LineTracer* this)
+{
+	return this->MAIMAI_TARGET;
 }
