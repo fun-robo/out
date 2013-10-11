@@ -154,7 +154,6 @@ void ecrobot_link(){
 	ui.sonarSensor = &sonarSensor;
 	ui.lightSensor = &lightSensor;
 	ui.lineTracer = &lineTracer;
-	ui.sonarSensor = &sonarSensor;
 	ui.maimai	   = &maimai;
 	ui.runMode	   = &runMode;
 

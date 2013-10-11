@@ -28,9 +28,13 @@ void UI_waitStart(UI* this)
 		// 尻尾を立てて完全停止状態にする
 		Motor_tailControl(this->tailMotor, TAIL_ANGLE_STAND_UP);
 		//点滅の輝度値を格納する
-
-		if(this->runMode->run_mode)	Maimai_store(this->maimai, run_time);
-		if(flag_touch == 2) {
+		if(this->runMode->run_mode){
+			Maimai_store(this->maimai, run_time);
+			LineTracer_changePID(this->lineTracer,0.6,0.08,0.124,LineTracer_getMaimaiTarget(this->lineTracer));
+		} else{
+			LineTracer_changePID(this->lineTracer,0.8,0.07,0.06,LineTracer_getTarget(this->lineTracer));
+		}
+		if(flag_touch >= 2) {
 			RunMode_change(this->runMode, LINE_TRACE);
 			ecrobot_set_light_sensor_active(this->lightSensor->inputPort);
 		}
@@ -55,7 +59,6 @@ void UI_waitStart(UI* this)
 			else if(flag_touch == 3){
 				this->lineTracer->TARGET = (F32)((white +LightSensor_getBrightness(this->lightSensor)) / 2);
 				flag_touch = 4;
-				run_time1 = run_time;
 			}
 			else if(flag_touch == 4){
 				flag_touch = 5;

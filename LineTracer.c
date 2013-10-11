@@ -32,9 +32,9 @@ void LineTracer_init(LineTracer* this)
 		this->KI = 0.08;//試走会0.08;//0.07;//0.08;//0.07;
 		this->KD = 0.124;//試走会0.12;//0.1;//0.07;
 	}else{
-	this->KP = 0.8;
-	this->KI = 0.07;
-	this->KD = 0.06;
+		this->KP = 0.8;
+		this->KI = 0.07;
+		this->KD = 0.06;
 	}
 	this->TARGET = 120;
 	this->MAIMAI_TARGET = 0;
