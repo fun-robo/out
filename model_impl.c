@@ -118,7 +118,7 @@ void ecrobot_device_initialize()
 	// ⇒　光センサ赤色LEDをONにする
 	ecrobot_set_light_sensor_active(NXT_PORT_S3);
 	if(ecrobot_get_bt_status() == BT_NO_INIT){
-		ecrobot_set_bt_device_name("ET025");
+		ecrobot_set_bt_device_name("FUN-ROBO");
 	}
 	ecrobot_init_bt_slave("LEJOS-OSEK");
 }

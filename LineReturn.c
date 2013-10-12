@@ -29,7 +29,7 @@ BOOL LineReturn_run(LineReturn *this)
 		break;
 
 	case 2:
-		Straight_tail(this->straight , 30);
+		Straight_tail(this->straight , 100);
 		if((Motor_getAngle(this->rightMotor) - (this->angle)) > 1000){
 			this->phase = 3;
 		}

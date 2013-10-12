@@ -49,7 +49,7 @@ void UI_waitStart(UI* this)
 			}
 			//2度目のボタン押下でスタート
 			else if(flag_touch == 1){
-				this->lineTracer->MAIMAI_TARGET = (F32)((white + Maimai_calc(this->maimai)) * 2/ 3);
+				this->lineTracer->MAIMAI_TARGET = (F32)((white + Maimai_calc(this->maimai)) /1.65);
 				flag_touch = 2;
 			}
 			else if(flag_touch == 2){
@@ -136,7 +136,7 @@ static int UI_remoteStart(UI* this)
 
 BOOL UI_isEmergency(UI *this)
 {
-	if (ecrobot_get_gyro_sensor(NXT_PORT_S1) < 400)
+	if (ecrobot_get_gyro_sensor(NXT_PORT_S1) < 300)
 		return true;
 	else
 		return false;

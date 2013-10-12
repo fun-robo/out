@@ -1,7 +1,7 @@
 #include "Straight.h"
 
 int Calc_angle(Straight *this){
-	return ((Motor_getAngle(this->rightMotor) - this->r_motor_angle) - (Motor_getAngle(this->leftMotor) - this->l_motor_angle));
+	return ((Motor_getAngle(this->rightMotor) - this->r_motor_angle) - (Motor_getAngle(this->leftMotor) - this->l_motor_angle) + 0.5);
 }
 
 void Straight_init(Straight *this){
